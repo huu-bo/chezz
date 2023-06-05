@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <script src="game.js"></script>
+    <link href="style.css" rel="stylesheet">
+    <style>
+        #board {
+            --size: calc(100vh / 12.5);
+            display: grid;
+            grid-template-columns: repeat(9, var(--size));
+            grid-gap: 0;
+            padding: 0px;
+            margin-left: auto;
+            margin-right: auto;
+
+            background-color: gray;
+            padding: calc(100vh / 12.5 / 2)
+        }
+        .square {
+            width: var(--size);
+            height: var(--size);
+            padding: 0px;
+            margin: 0px;
+        }
+
+        #board-outer {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div id="board-outer">
+    <div id="board"></div>
+</div>
+<a href="index.html"><button>Back to menu</button></a>
+</body>
+</html>
