@@ -5,16 +5,19 @@
     <link href="style.css" rel="stylesheet">
     <style>
         #board {
-            --size: calc(100vh / 12.5);
+            --square-amount: 9;
+
+            --factor: 1.3888888888;
+            --size: calc(100vh / (var(--square-amount) * var(--factor)));
             display: grid;
-            grid-template-columns: repeat(9, var(--size));
+            grid-template-columns: repeat(var(--square-amount), var(--size));
             grid-gap: 0;
             padding: 0px;
             margin-left: auto;
             margin-right: auto;
 
             background-color: gray;
-            padding: calc(100vh / 12.5 / 2)
+            padding: calc(100vh / 12.5 / 2);
         }
         .square {
             width: var(--size);

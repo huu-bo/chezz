@@ -2,7 +2,9 @@ let params = new URL(document.location).searchParams;
 game_id = params.get("game-id")
 
 if (game_id == null) {
-    window.location.href = "/?incorrect_game";
+    window.location.href = "/?incorrect_game=none";
+} else if (game_id.length != 8) {
+    window.location.href = "/?incorrect_game=length";
 } else {
     console.log("stfu")
 }
@@ -11,7 +13,8 @@ window.onload = init;
 
 function init() {
     // TODO: different board sizes
-    for (let i = 0; i < 9*9; i++) {
+    console.debug(window.board.style["--square-amount"]);
+    for (let i = 0; i < getComputedStyle(window.board).getPropertyValue('--square-amount') ** 2; i++) {
         let e = document.createElement("div");
 
         let color;
