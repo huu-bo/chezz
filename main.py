@@ -2,15 +2,35 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import urllib.parse
 import threading
+import random
+import secrets
 
 hostName = "localhost"
 serverPort = 8080
 
 
+def new_game_id():
+    def game_id():
+        return ''.join([random.choice('aeouiqwkghq') for i in range(8)])
+    global games
+
+    game = game_id()
+    if game in games:
+        game = game[:-3].rjust(8, 'Q')
+        if game in games:
+            return None
+        else:
+            return game
+    else:
+        return game
+
+
 class Game:
-    def __init__(self):
+    def __init__(self, game_id):
         self.max_players = None
         self.rules = 'chess'
+        self.game_id = game_id
+        self.tokens = [secrets.token_hex(32)]
 
 
 games = {}
@@ -18,6 +38,8 @@ games = {}
 
 class Server(BaseHTTPRequestHandler):
     def do_GET(self):
+        global games
+
         # if self.rfile.tell() != 0:
         #     self.rfile.seek(0)
         #     print(self.rfile.read())
@@ -50,15 +72,36 @@ class Server(BaseHTTPRequestHandler):
             return
 
         if base_path == '/api/game-id':
-            game_id = 'wwwwwwww'
+            game_id = new_game_id()
             self.wfile.write(game_id.encode('utf-8'))
             assert game_id not in games
 
-            try:
-                games[game_id] = Game()
-            except json.JSONDecodeError:
-                print('json decodererror')
+            games[game_id] = Game(game_id)
 
+            self.wfile.write(('\n' + games[game_id].tokens[0]).encode('utf-8'))
+
+            return
+        elif base_path == '/api/rules':
+            if 'game-id' in path_query:
+                game_id = path_query['game-id'][0]
+            else:
+                self.wfile.write('id'.encode('utf-8'))
+                return
+
+            if 'token' in path_query:
+                token = path_query['token'][0]
+            else:
+                self.wfile.write('token'.encode('utf-8'))
+                return
+
+            if game_id not in games:
+                self.wfile.write('unknown id'.encode('utf-8'))
+                return
+            if games[game_id].tokens[0] != token:
+                self.wfile.write('token'.encode('utf-8'))
+                return
+
+            self.wfile.write('ok'.encode('utf-8'))
             return
 
         self.path = './pages' + base_path

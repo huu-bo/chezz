@@ -9,10 +9,11 @@
 <h1 id="error"></h1>
 <h2 id="game_id"></h2>
 <form action="/game.html" autocomplete="off">
-    <input type="text" id="game-id-form" name="game-id" hidden
+    <input type="text" id="game-id-form" name="game-id" hidden required
        minlength="8" maxlength="8" size="10">
-    <input type="submit" value="Create" />
 </form>
+<button onclick="check_rules()">Create</button>
+<br>
 <a href="index.html"><button>Back to menu</button></a>
 </body>
 </html>
