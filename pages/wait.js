@@ -108,7 +108,7 @@ function check_players() {
                 "token": token
             });
             document.body.children.error.innerText += "starting\n";
-            window.location.href = "/game.html" + query.toString();
+            window.location.href = "/game.html?" + query.toString();
         }
 
         console.debug("players:", +response);

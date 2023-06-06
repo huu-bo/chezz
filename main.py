@@ -133,11 +133,14 @@ class Server(BaseHTTPRequestHandler):
                 self.wfile.write('id'.encode('utf-8'))
                 return
 
-            self.wfile.write(str(games[game_id].players).encode('utf-8'))
+            game = games[game_id]
+            if game.max_players is not None and game.max_players == game.players:
+                self.wfile.write(b'start')
+            else:
+                self.wfile.write(str(game.players).encode('utf-8'))
 
             if 'token' in path_query:
                 token = path_query['token'][0]
-                game = games[game_id]
                 i = game.tokens.index(token)
                 if i == -1:
                     return
