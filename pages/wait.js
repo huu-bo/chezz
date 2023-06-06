@@ -30,7 +30,7 @@ function init() {
             }
         })
         .then((response) => {
-            if (response.length != 32) {
+            if (response.length != 64) {
                 if (response == 'id') {
                     document.body.children.error.innerText += "No game-ID\n";
                 } else if (response == 'u-id') {

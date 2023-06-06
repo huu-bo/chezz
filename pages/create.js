@@ -41,7 +41,8 @@ function init() {
 function check_rules() {
     const query = new URLSearchParams({
         "game-id": game_id,
-        "token": token
+        "token": token,
+        "max-players": document.getElementById('player-amount-form').value
     });
 
     const request = new Request("/api/rules?" + query.toString());
@@ -70,4 +71,6 @@ function check_rules() {
         console.error(error);
         document.body.children.error.innerText += "Api error (rules)";
     });
+
+    return false;
 }

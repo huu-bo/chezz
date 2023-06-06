@@ -8,12 +8,14 @@
 <h1>Create game</h1>
 <h1 id="error"></h1>
 <h2 id="game_id"></h2>
-<form action="/game.html" autocomplete="off">
+<form onsubmit="return check_rules()" autocomplete="off">
     <input type="text" id="game-id-form" name="game-id" hidden required
        minlength="8" maxlength="8" size="10">
+    <label>Amount of players</label>
+    <input type="number" min="2" id="player-amount-form" required>
+    <input type="submit" value="Create">
 </form>
-<button onclick="check_rules()">Create</button>
-<br>
+<!--<button onclick="check_rules()">Create</button> <br>-->
 <a href="index.html"><button>Back to menu</button></a>
 </body>
 </html>

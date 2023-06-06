@@ -103,8 +103,20 @@ class Server(BaseHTTPRequestHandler):
             if game_id not in games:
                 self.wfile.write('unknown id'.encode('utf-8'))
                 return
-            if games[game_id].tokens[0] != token:
+            game = games[game_id]
+            if game.tokens[0] != token:
                 self.wfile.write('token'.encode('utf-8'))
+                return
+
+            if 'max-players' in path_query:
+                max_players = path_query['max-players'][0]
+                try:
+                    game.max_players = int(max_players)
+                except ValueError:
+                    self.wfile.write('rules'.encode('utf-8'))
+                    return
+            else:
+                self.wfile.write('rules'.encode('utf-8'))
                 return
 
             self.wfile.write('ok'.encode('utf-8'))
