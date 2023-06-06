@@ -6,19 +6,59 @@ if (game_id == null) {
     window.location.href = "/?incorrect_game=none";
 } else if (game_id.length != 8) {
     window.location.href = "/?incorrect_game=length";
-} else {
-    console.log("stfu");
 }
 
 if (token == null) {
-    window.location.href = "/?incorrect_game=token";
+//    window.location.href = "/?incorrect_game=token";
 }
 
 window.onload = init;
 
 function init() {
+    if (token == null) {
+        const query = new URLSearchParams({
+            "game-id": game_id
+        });
+
+        const request = new Request("/api/join?" + query.toString());
+        fetch(request)
+        .then((response) => {
+            if (response.status === 200) {
+                return response.text();
+            } else {
+                throw new Error("Something went wrong on API server!");
+            }
+        })
+        .then((response) => {
+            if (response.length != 32) {
+                if (response == 'id') {
+                    document.body.children.error.innerText += "No game-ID\n";
+                } else if (response == 'u-id') {
+                    document.body.children.error.innerText += "Unknown game-ID\n";
+                } else if (response == 'uninit') {
+                    document.body.children.error.innerText += "Game is not initialised\n";
+                } else if (response == 'full') {
+                    document.body.children.error.innerText += "Game is full\n";
+                } else {
+                    document.body.children.error.innerText += response + "\n";
+                }
+
+                throw new Error("error " + response);  // TODO: redundant
+            } else {
+                token = response;
+                setup_timer();
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            document.body.children.error.innerText += "Api error (join)\n";
+        });
+    }
+
     document.body.children.game_id.innerText = game_id;
-    window.setInterval(check_players, 1000);
+    if (token != null) {
+        setup_timer();
+    }
 }
 
 function check_players() {
@@ -56,4 +96,8 @@ function check_players() {
         console.error(error);
         document.body.children.error.innerText += "Api error (players)\n";
     })
+}
+
+function setup_timer() {
+    window.setInterval(check_players, 2000);
 }

@@ -139,6 +139,31 @@ class Server(BaseHTTPRequestHandler):
 
             return
 
+        elif base_path == '/api/join':
+            if 'game-id' in path_query:
+                game_id = path_query['game-id'][0]
+            else:
+                self.wfile.write('id'.encode('utf-8'))
+                return
+
+            if game_id not in games:
+                self.wfile.write('u-id'.encode('utf-8'))
+                return
+
+            game = games[game_id]
+            if game.max_players is None:
+                self.wfile.write('uninit'.encode('utf-8'))
+                return
+
+            if game.players + 1 > game.max_players:
+                self.wfile.write('full'.encode('utf-8'))  # TODO: spectate
+                return
+
+            game.players += 1
+            game.tokens.append(secrets.token_hex(32))
+            self.wfile.write(game.tokens[-1].encode('utf-8'))
+            return
+
         self.path = './pages' + base_path  # TODO: you could do ../ and access every file on the system
 
         self.end_headers()
