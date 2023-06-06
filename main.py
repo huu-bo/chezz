@@ -4,6 +4,7 @@ import urllib.parse
 import threading
 import random
 import secrets
+import time
 
 hostName = "localhost"
 serverPort = 8080
@@ -11,7 +12,7 @@ serverPort = 8080
 
 def new_game_id():
     def game_id():
-        return ''.join([random.choice('aeouiqwkghq') for i in range(8)])
+        return ''.join([random.choice('aeouiqwkhq') for _ in range(8)])
     global games
 
     game = game_id()
@@ -28,12 +29,17 @@ def new_game_id():
 class Game:
     def __init__(self, game_id):
         self.max_players = None
-        self.rules = 'chess'
+        self.rules = None
         self.game_id = game_id
         self.tokens = [secrets.token_hex(32)]
+        self.players = 1
+        self.board = None
+        self.times = []
 
 
 games = {}
+
+# TODO: a thread that monitors timeouts and removes games
 
 
 class Server(BaseHTTPRequestHandler):
@@ -104,7 +110,36 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write('ok'.encode('utf-8'))
             return
 
-        self.path = './pages' + base_path
+        elif base_path == '/api/players':
+            if 'game-id' in path_query:
+                game_id = path_query['game-id'][0]
+            else:
+                self.wfile.write('id'.encode('utf-8'))
+                return
+
+            if game_id not in games:
+                self.wfile.write('id'.encode('utf-8'))
+                return
+
+            self.wfile.write(str(games[game_id].players).encode('utf-8'))
+
+            if 'token' in path_query:
+                token = path_query['token'][0]
+                game = games[game_id]
+                i = game.tokens.index(token)
+                if i == -1:
+                    return
+
+                assert len(game.tokens) == game.players
+                if len(game.times) < game.players:
+                    for j in range(game.players - len(game.times)):
+                        game.times.append(time.time())
+
+                game.times[i] = time.time()
+
+            return
+
+        self.path = './pages' + base_path  # TODO: you could do ../ and access every file on the system
 
         self.end_headers()
 

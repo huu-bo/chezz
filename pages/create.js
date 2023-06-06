@@ -59,9 +59,15 @@ function check_rules() {
         if (response != "ok") {
             throw new Error("sending rules failed with message " + response);
         }
+
+        const query = new URLSearchParams({
+            "game-id": game_id,
+            "token": token
+        });
+        window.location.href = "/wait.html?" + query.toString();
     })
     .catch((error) => {
         console.error(error);
         document.body.children.error.innerText += "Api error (rules)";
-    })
+    });
 }
