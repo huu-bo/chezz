@@ -59,6 +59,29 @@ function init() {
     if (token != null) {
         setup_timer();
     }
+
+    const query = new URLSearchParams({
+            "game-id": game_id
+        });
+
+        const request = new Request("/api/get-rules?" + query.toString());
+        fetch(request)
+        .then((response) => {
+            if (response.status === 200) {
+                // TODO: error messages
+                return response.json();
+            } else {
+                throw new Error("Something went wrong on API server!");
+            }
+        })
+        .then((response) => {
+            console.debug(response);
+            document.getElementById("max_player_amount").innerText = response["max_players"];
+        })
+        .catch((error) => {
+            console.error(error);
+            document.body.children.error.innerText += "Api error (rules)\n";
+        });
 }
 
 function check_players() {
@@ -99,5 +122,6 @@ function check_players() {
 }
 
 function setup_timer() {
+    check_players();
     window.setInterval(check_players, 2000);
 }

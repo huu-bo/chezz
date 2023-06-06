@@ -176,6 +176,30 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write(game.tokens[-1].encode('utf-8'))
             return
 
+        elif base_path == '/api/get-rules':
+            if 'game-id' in path_query:
+                game_id = path_query['game-id'][0]
+            else:
+                self.wfile.write('id'.encode('utf-8'))
+                return
+
+            if game_id not in games:
+                self.wfile.write('u-id'.encode('utf-8'))
+                return
+
+            game = games[game_id]
+            if game.max_players is None:
+                self.wfile.write('uninit'.encode('utf-8'))
+                return
+
+            out = {
+                'max_players': game.max_players,
+                'rules': game.rules
+            }
+
+            self.wfile.write(json.dumps(out).encode('utf-8'))
+            return
+
         self.path = './pages' + base_path  # TODO: you could do ../ and access every file on the system
 
         self.end_headers()
