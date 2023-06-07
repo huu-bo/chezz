@@ -29,7 +29,14 @@ def new_game_id():
 class Game:
     def __init__(self, game_id):
         self.max_players = None
-        self.rules = None
+        self.rules = {'board': ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br',
+                                'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp',
+                                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                                'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp',
+                                'wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']}
         self.game_id = game_id
         self.tokens = [secrets.token_hex(32)]
         self.players = 1
