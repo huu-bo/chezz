@@ -20,7 +20,8 @@ function init() {
         piece = all_pieces[i];
         var img = document.createElement("img");
         img.src = "/assets/" + piece + ".png";
-        img.className = "piece"
+        img.className = "piece";
+        img.style.cursor = "move";
         pieces[piece] = img;
     }
 
@@ -80,5 +81,72 @@ function init() {
         e.className = "square";
 
         window.board.append(e);
+    }
+
+    move_pieces();
+}
+
+function move_pieces() {
+    board = document.getElementById("board");
+    document.onmousemove = mouse_move;
+    const board_rect = board.getBoundingClientRect();  // TODO: update on resize
+    square_amount = getComputedStyle(window.board).getPropertyValue('--square-amount');
+    squares = document.getElementsByClassName("square");
+    drag_element = null;
+    let i;
+    let start_drag_i;
+    document.onmousedown = drag_mouse_down;
+
+    function mouse_move(e) {
+        let x = (e.clientX - board_rect.x) / board_rect.width;
+        let y = (e.clientY - board_rect.y) / board_rect.height;
+        x = Math.floor(x * square_amount);
+        y = Math.floor(y * square_amount);
+
+        if (x >= 0 && x < square_amount) {
+            if (y >= 0 && y < square_amount) {
+                i = x + y * square_amount;
+            } else {
+                i = -1;
+            }
+        } else {
+            i = -1;
+        }
+
+//        if (i != -1) {
+//            squares[i].style.backgroundColor = "black";
+//        }
+    }
+
+    function drag_mouse_down(e) {
+        console.debug(e);
+        if (i != -1) {
+            console.debug(squares[i].children);
+            if (squares[i].children.length == 0) {
+                console.debug("empty", i);
+                return;
+            }
+            drag_element = squares[i].children[0];
+            document.getElementById("board").children[i].removeChild(drag_element);
+//            drag_element.detach();
+            start_drag_i = i;
+            document.onmouseup = drag_mouse_up;
+        }
+    }
+
+    // TODO: render valid moves
+    // TODO: check if moves are valid
+    // TODO: ask server about valid moves
+    function drag_mouse_up(e) {
+        if (start_drag_i == i && document.onmousedown != null) {
+            document.onmousedown = null;
+            return;
+        }
+        document.onmousedown = drag_mouse_down;
+
+        console.log(drag_element, i);
+        squares[i].appendChild(drag_element);
+        drag_element = null;
+        document.onmouseup = null;
     }
 }

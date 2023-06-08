@@ -4,20 +4,22 @@
     <script src="game.js"></script>
     <link href="style.css" rel="stylesheet">
     <style>
-        #board {
+        #board-border {
             --square-amount: 8;
 
             --factor: 1.3888888888;
             --size: calc(100vh / (var(--square-amount) * var(--factor)));
+
+            background-color: gray;
+            padding: calc(var(--size) / 2);
+        }
+        #board {
             display: grid;
             grid-template-columns: repeat(var(--square-amount), var(--size));
             grid-gap: 0;
             padding: 0px;
             margin-left: auto;
             margin-right: auto;
-
-            background-color: gray;
-            padding: calc(100vh / 12.5 / 2);
         }
         .square {
             width: var(--size);
@@ -38,7 +40,9 @@
 </head>
 <body>
 <div id="board-outer">
-    <div id="board"></div>
+    <div id="board-border">
+        <div id="board"></div>
+    </div>
 </div>
 <h1 id="error"></h1>
 <a href="index.html"><button>Back to menu</button></a>
