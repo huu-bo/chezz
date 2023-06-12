@@ -22,6 +22,8 @@ function init() {
         img.src = "/assets/" + piece + ".png";
         img.className = "piece";
         img.style.cursor = "move";
+        img.draggable = false;
+        img.style.position = "absolute";
         pieces[piece] = img;
     }
 
@@ -92,6 +94,7 @@ function move_pieces() {
     const board_rect = board.getBoundingClientRect();  // TODO: update on resize
     square_amount = getComputedStyle(window.board).getPropertyValue('--square-amount');
     squares = document.getElementsByClassName("square");
+    const piece_size = getComputedStyle(squares[0]).getPropertyValue('width');
     drag_element = null;
     let i;
     let start_drag_i;
@@ -113,6 +116,17 @@ function move_pieces() {
             i = -1;
         }
 
+        if (drag_element != null) {
+//            drag_element.style.left = (e.clientX - board_rect.x) + "px";
+//            drag_element.style.top = (e.clientY - board_rect.y) + "px";
+
+            let x = e.clientX;
+            let y = e.clientY;
+
+            drag_element.style.left = "calc(" + x + "px - (" + piece_size + ") / 2)";
+            drag_element.style.top = "calc(" + y + "px - (" + piece_size + ") / 2)";
+        }
+
 //        if (i != -1) {
 //            squares[i].style.backgroundColor = "black";
 //        }
@@ -129,8 +143,12 @@ function move_pieces() {
             drag_element = squares[i].children[0];
             document.getElementById("board").children[i].removeChild(drag_element);
 //            drag_element.detach();
+            document.getElementById("board").appendChild(drag_element);
+            drag_element.style.position = "absolute";
             start_drag_i = i;
             document.onmouseup = drag_mouse_up;
+
+            mouse_move(e);
         }
     }
 
@@ -143,6 +161,13 @@ function move_pieces() {
             return;
         }
         document.onmousedown = drag_mouse_down;
+
+        try {
+            document.getElementById("board-border").removeChild(drag_element);
+        } catch {}
+        drag_element.style.left = "0px";
+        drag_element.style.top = "0px";
+        drag_element.style.position = "static";
 
         console.log(drag_element, i);
         squares[i].appendChild(drag_element);
