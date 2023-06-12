@@ -10,7 +10,7 @@
             --factor: 1.3888888888;
             --size: calc(100vh / (var(--square-amount) * var(--factor)));
 
-            background-color: gray;
+            background-color: var(--border-color, gray);
             padding: calc(var(--size) / 2);
         }
         #board {
@@ -47,7 +47,7 @@
         <div id="board"></div>
     </div>
 </div>
-<h1 id="error"></h1>
 <a href="index.html"><button>Back to menu</button></a>
+<h1 id="error"></h1>
 </body>
 </html>

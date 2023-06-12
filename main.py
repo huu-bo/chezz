@@ -9,6 +9,8 @@ import time
 hostName = "localhost"
 serverPort = 8080
 
+# TODO: give joining players a token because now they can spam reload and the server thinks many players are joining
+
 
 def new_game_id():
     def game_id():
@@ -52,6 +54,23 @@ games = {}
 class Server(BaseHTTPRequestHandler):
     def do_GET(self):
         global games
+        cookie = self.headers['Cookie']
+
+        theme = None
+
+        split = cookie.split(';')
+        for c in split:
+            c = c.removeprefix(' ')
+            pair = c.split('=')
+            if len(pair) != 2:
+                continue
+            if pair[0] != 'theme':
+                continue
+            if pair[1] not in ['light', 'dark']:
+                continue
+            theme = pair[1]
+        if theme is None:
+            theme = 'light'
 
         # if self.rfile.tell() != 0:
         #     self.rfile.seek(0)
@@ -74,6 +93,8 @@ class Server(BaseHTTPRequestHandler):
             self.send_header("Content-type", "text/css")
         elif base_path.endswith('.ttf'):
             self.send_header("Content-type", "font/ttf")
+        elif base_path.endswith('.ico'):
+            self.send_header("Content-type", "image/x-icon")
         elif base_path != '/':
             print('a')
 
@@ -210,7 +231,13 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(out).encode('utf-8'))
             return
 
+        if base_path == '/style.css' and theme == 'dark':
+            base_path = '/style-dark.css'
+
         self.path = './pages' + base_path  # TODO: you could do ../ and access every file on the system
+
+        if self.path.endswith('.png') or self.path.endswith('.ttf'):
+            self.send_header('cache-control', 'private, max-age=31536000')
 
         self.end_headers()
 

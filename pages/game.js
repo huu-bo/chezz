@@ -72,9 +72,11 @@ function init() {
         }
         let color;
         if (state) {
-            color = "#EEEED2";
+//            color = "#EEEED2";
+            color = "var(--white-color, #EEEED2)"
         } else {
-            color = "#769656";
+//            color = "#769656";
+            color = "var(--black-color, #769656)"
         }
         state = !state;
 

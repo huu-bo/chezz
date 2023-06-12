@@ -3,6 +3,16 @@
 <head>
     <script src="script.js"></script>
     <link href="style.css" rel="stylesheet">
+    <script>
+        function toggle_theme() {
+            if (getComputedStyle(document.body).getPropertyValue('background-color') == "rgb(0, 0, 0)") {
+                document.cookie = 'theme=light';
+            } else {
+                document.cookie = 'theme=dark';
+            }
+            window.location.reload();
+        }
+    </script>
 </head>
 <body>
 <h1 id="error"></h1>
@@ -13,5 +23,6 @@
     <input type="submit" value="Join" />
 </form>
 <a href="create.html"><button>new game</button></a>
+<button onclick="toggle_theme();">Toggle theme</button>
 </body>
 </html>
