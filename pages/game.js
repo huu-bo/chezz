@@ -91,14 +91,15 @@ function init() {
 function move_pieces() {
     board = document.getElementById("board");
     document.onmousemove = mouse_move;
-    const board_rect = board.getBoundingClientRect();  // TODO: update on resize
+    let board_rect = board.getBoundingClientRect();
     square_amount = getComputedStyle(window.board).getPropertyValue('--square-amount');
     squares = document.getElementsByClassName("square");
-    const piece_size = getComputedStyle(squares[0]).getPropertyValue('width');
+    let piece_size = getComputedStyle(squares[0]).getPropertyValue('width');
     drag_element = null;
     let i;
     let start_drag_i;
     document.onmousedown = drag_mouse_down;
+    window.onresize = drag_resize;
 
     function mouse_move(e) {
         let x = (e.clientX - board_rect.x) / board_rect.width;
@@ -173,5 +174,11 @@ function move_pieces() {
         squares[i].appendChild(drag_element);
         drag_element = null;
         document.onmouseup = null;
+    }
+
+    function drag_resize(e) {
+        console.log(e);
+        board_rect = board.getBoundingClientRect();
+        piece_size = getComputedStyle(squares[0]).getPropertyValue('width');
     }
 }
