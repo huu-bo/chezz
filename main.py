@@ -10,6 +10,9 @@ hostName = "localhost"
 serverPort = 8080
 
 # TODO: give joining players a token because now they can spam reload and the server thinks many players are joining
+# TODO: when dark mode make chess pieces less bright
+# TODO: main menu looks scuffed
+# TODO: be able to play chess
 
 
 def new_game_id():

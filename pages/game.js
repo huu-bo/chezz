@@ -103,6 +103,17 @@ function move_pieces() {
     document.onmousedown = drag_mouse_down;
     window.onresize = drag_resize;
 
+    const shadow_src = '<circle cx="50" cy="50" r="49" fill="url(#shadowGradient)" />' +
+        '<radialGradient id="shadowGradient"> <stop offset="0%" stop-color="#444" /> <stop offset="100%" stop-color=#00000000 /> </radialGradient>';
+    const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    shadow.setAttribute("width", piece_size);
+    shadow.setAttribute("height", piece_size);
+    shadow.setAttribute('viewBox', '0 0 100 100')
+    shadow.innerHTML = shadow_src;
+    shadow.style.position = "absolute"
+    shadow.style.opacity = 0;
+    document.getElementById("board").appendChild(shadow);
+
     function mouse_move(e) {
         let x = (e.clientX - board_rect.x) / board_rect.width;
         let y = (e.clientY - board_rect.y) / board_rect.height;
@@ -128,6 +139,9 @@ function move_pieces() {
 
             drag_element.style.left = "calc(" + x + "px - (" + piece_size + ") / 2)";
             drag_element.style.top = "calc(" + y + "px - (" + piece_size + ") / 2)";
+
+            shadow.style.left = "calc(" + x + "px - (" + piece_size + ") / 2)";
+            shadow.style.top = "calc(" + y + "px - (" + piece_size + ") / 2)";
         }
 
 //        if (i != -1) {
@@ -150,6 +164,8 @@ function move_pieces() {
             drag_element.style.position = "absolute";
             start_drag_i = i;
             document.onmouseup = drag_mouse_up;
+
+            shadow.style.opacity = .15;
 
             mouse_move(e);
         }
@@ -176,6 +192,8 @@ function move_pieces() {
         squares[i].appendChild(drag_element);
         drag_element = null;
         document.onmouseup = null;
+
+        shadow.style.opacity = 0;
     }
 
     function drag_resize(e) {
