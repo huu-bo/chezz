@@ -1,4 +1,5 @@
 from stockfish import Stockfish
+from pprint import pprint as print
 
 
 class NotaSyntaxException(Exception):
@@ -132,6 +133,7 @@ class Board:
         self.rules = []
         for rule in rules:
             self.rules.append(nota_rule(rule))
+        print(self.rules)
 
 
 def nota_rule(s: str):
@@ -139,7 +141,6 @@ def nota_rule(s: str):
     if len(split) != 2 and len(s.split('=')) != 2:
         raise NotaSyntaxException("missing ':'")
     elif len(s.split('=')) == 2 and len(split) != 2:
-        print('delay', s)
 
         out = ['DELAY', s[0:2]]
 
@@ -152,10 +153,8 @@ def nota_rule(s: str):
         out.append(s[3:i])
         out.append(s[i+1:i+3])
 
-        print(s, i)
         if s[i+3] != ')':
             raise NotaSyntaxException(f"missing ')' in '{s}'")
-        print(out)
     else:
         out = ['RULE', nota_lhs(split[0]), nota_rhs(split[1])]
     return out
@@ -188,7 +187,7 @@ def nota_lhs_rule(s: str) -> list:
 
         if s[i] in '.#*':
             out.append(t)
-            out.append(s[i])
+            state = s[i]
             break
 
         if s[i] not in 'xyld':
@@ -218,23 +217,24 @@ def nota_lhs_rule(s: str) -> list:
             j = i + 1
             while j < len(s) and s[j].isdigit():
                 j += 1
-            t.append(s[i:j])
+            t.append(s[i+1:j])
             i = j
         elif s[i] == '=':
             t.append('=')
             j = i + 1
             while j < len(s) and s[j].isdigit():
                 j += 1
-            t.append(s[i:j])
+            t.append(s[i+1:j])
             i = j
         elif s[i] in '.#*':
             pass
         else:
-            print(i, s)
             raise NotaSyntaxException(f"unknown token '{s[i]}' in lhs rule '{s}'")
 
         out.append(t)
         t = []
+
+    out = list([o for o in out if o])
 
     return ['POS', out, state]
 
@@ -274,7 +274,17 @@ def nota_rhs_rule(s: str):
             raise NotaSyntaxException(f"literal of unexpected length '{s[2:]}' in rhs rule '{s}'")
     else:
         if not s[2:].isdigit():
-            raise NotaSyntaxException(f"unexpected non-number literal '{s[2:]}' in rhs rule '{s}'")
+            i = 2
+            while s[i].isdigit():
+                i += 1
+            offset = s[2:i]
+            piece = s[i+1:]
+            if len(piece) != 2:
+                raise NotaSyntaxException(f"expected piece but got '{piece}' (should have a length of 2) in rhs rule '{s}'")
+
+            return ['SET', s[0], s[1], offset, piece]
+
+            # raise NotaSyntaxException(f"unexpected non-number literal '{s[2:]}' in rhs rule '{s}'")
 
     return ['MOVE', s[0], s[1], s[2:]]
 
