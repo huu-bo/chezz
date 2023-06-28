@@ -169,13 +169,161 @@ class Board:
 
 
 def nota_rule(s: str):
-    out = []
     split = s.split(':')
     if len(split) != 2:
         raise NotaSyntaxException("missing ':'")
+    out = [nota_lhs(split[0]), nota_rhs(split[1])]
+    return out
 
 
-print(nota_rule('wp,y-1.:y-1'))
+def nota_lhs(s: str):
+    out = []
+
+    split = s.split(',')
+    if len(split) == 0:
+        raise NotaSyntaxException('no lhs')
+
+    for subs in split:
+        out.append(nota_lhs_rule(subs))
+
+    return out
+
+
+def nota_lhs_rule(s: str) -> list:
+    if len(s) == 2:
+        return ['PIECE', s]
+
+    out = []
+    rule = []
+    state = 'dir'
+    for i, c in enumerate(s):
+        if state == 'dir':
+            if c not in 'lxy':
+                raise NotaSyntaxException(f"unknown direction '{c}'")
+            rule.append(c)
+            state = 'op'
+        elif state == 'op':
+            if c not in '+-=':
+                if c.isdigit():
+                    state = 'abspos'
+                    rule.append(c)
+                    continue
+                else:
+                    raise NotaSyntaxException(f"unknown operation '{c}'")
+            rule.append(c)
+            rule.append('')
+            state = 'num'
+        elif state == 'num':
+            if not c.isdigit():
+                if c in ' #*':
+                    out.append(rule)
+                    out = ['POS', out, c]
+                    return out
+                if c == '=':
+                    state = 'piece'
+                    out.append(rule)
+                    rule = ['']
+                    continue
+                if c != '+':
+                    raise NotaSyntaxException(f"unexpected token '{c}'")
+                out.append(rule)
+                rule = []
+                state = 'dir'
+            else:
+                rule[-1] += c
+        elif state == 'abspos':
+            if not c.isdigit():
+                if c not in '+=':
+                    raise NotaSyntaxException(f"unknown operation '{c}'")
+
+                if s[i+1].isdigit():
+                    state = 'num'
+                elif c == '+':
+                    out.append(rule)
+                    rule = []
+                    state = 'dir'
+                else:
+                    out.append(rule)
+                    rule = ['']
+                    state = 'piece'
+                continue
+
+            if not s[i+1].isdigit():
+                state = 'op'
+            else:
+                rule[-1] += c
+        elif state == 'piece':
+            rule[-1] += c
+            if len(rule[-1]) == 2:
+                out = ['POS', out, rule[0]]
+                return out
+        # elif state == 'com':
+        #     if c != '+':
+        #         raise NotaSyntaxException(f"unexpected token '{c}'")
+        #     state = 'dir'
+        else:
+            assert False
+
+
+def nota_rhs(s: str):
+    out = []
+
+    split = s.split(',')
+    if len(split) == 0:
+        raise NotaSyntaxException('no rhs')
+
+    for subs in split:
+        out.append(nota_rhs_rule(subs))
+
+    return out
+
+
+def nota_rhs_rule(s: str):
+    if s[0] not in 'lxy':
+        raise NotaSyntaxException(f"unexpected direction '{s[0]}'")
+    if s[1].isdigit():
+        return nota_rhs_abs_pos(s)
+    elif s[1] not in '+-=':
+        raise NotaSyntaxException(f"unexpected operation '{s[1]}'")
+
+    if s[1] == '=':
+        if len(s[2:]) != 2:
+            raise NotaSyntaxException(f"literal of unexpected length '{s[2:]}'")
+    else:
+        if not s[2:].isdigit():
+            raise NotaSyntaxException(f"unexpected non-number literal '{s[2:]}'")
+
+    return ['MOVE', s[0], s[1], s[2:]]
+
+
+def nota_rhs_abs_pos(s: str):
+    i = 0
+    out = ['MOVE', []]
+    while i < len(s):
+        if s[i] not in 'xy':
+            raise NotaSyntaxException(f"unexpected direction '{s[i]}'")
+
+        j = i + 1
+        while s[j].isdigit():
+            j += 1
+        pos = s[i+1:j]
+
+        out[-1].append([s[i], pos])
+        if s[j] != '=':
+            if s[j] == '+':
+                j += 1
+            i = j
+        else:
+            piece = s[j+1:]
+            if len(piece) != 2:
+                raise NotaSyntaxException(f"expected piece but got '{piece}' (should have a length of 2)")
+
+            return out + [piece]
+
+
+# print(nota_lhs('wp,y-1+x+1#,x1+y2=bp'))
+# print(nota_lhs('wp,y-1+x+1=wp'))
+# print(nota_rule('wp,y-1+x+1#,x1+y2=bp:y-1,x+1,x1+y1=..'))
 
 # stockfish = Stockfish(depth=18, parameters={"Threads": 2, "Minimum Thinking Time": 30})
 # print(stockfish.get_fen_position())
