@@ -1,5 +1,4 @@
 from stockfish import Stockfish
-from pprint import pprint as print
 
 
 class NotaSyntaxException(Exception):
@@ -8,61 +7,6 @@ class NotaSyntaxException(Exception):
     # 'p' is incorrect starting pos
 
     pass
-
-
-class State:
-    def __init__(self, piece: str, line: bool, l_positions: list):
-        self.piece = piece
-        self.line = line
-        self.l_positions = l_positions
-
-
-class Nota_l_Position:
-    def __init__(self, direction: str, operation: str, value: int, place_value: str, line: bool):
-        if type(direction) != str:
-            raise ValueError
-        if direction not in 'xy':
-            raise ValueError
-        if type(operation) != str:
-            raise ValueError
-        if operation not in '-+=':
-            raise ValueError
-        if type(line) != bool:
-            raise ValueError
-        if type(value) != int:
-            raise ValueError
-        if type(place_value) != str:
-            raise ValueError
-        if place_value not in [' ', '*', '#',
-                               ' x', '*x', '#x',
-                               ' X', '*X', '#X']:
-            raise ValueError
-
-        self.direction = direction
-        self.operation = operation
-        self.value = value
-        self.place_value = place_value
-        self.line = line
-
-
-class Nota_r_Position:
-    def __init__(self, direction: str, operation: str, value, line: bool):
-        if type(direction) != str:
-            raise ValueError
-        if direction not in 'xy':
-            raise ValueError
-        if type(operation) != str:
-            raise ValueError
-        if operation not in '-+=':
-            raise ValueError
-        if type(line) != bool:
-            raise ValueError
-        if type(value) not in [str, int]:
-            raise ValueError
-
-        self.direction = direction
-        self.value = value
-        self.line = line
 
 
 class Board:
@@ -133,7 +77,12 @@ class Board:
         self.rules = []
         for rule in rules:
             self.rules.append(nota_rule(rule))
-        print(self.rules)
+
+        textures = split[3]
+        self.textures = {}
+        for texture in textures.split(','):
+            s = texture.split(':', 1)
+            self.textures[s[0]] = s[1]
 
 
 def nota_rule(s: str):
