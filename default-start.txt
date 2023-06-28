@@ -1,6 +1,6 @@
 8x8
  brbnbbbqbkbbbnbrbpbpbpbpbpbpbpbp.6wpwpwpwpwpwpwpwpwrwnwbwqwkwbwnwr
- wp,y-1.:y-1;wp,y-1+x-1#:y-1,x-1;wp,y-1+x+1#:y-1,x+1;wr,yl+xl*:l;wr,y-l+y+l*:l;wb,dl*:l;wq,d+l*:l;
-wp,y=6:y-2,wP;wP=1(wp);wP,x-1#:x-1=..,y-1,x-1
+ wp,y-1.:y-1;wp,y-1+x-1#:y-1,x-1;wp,y-1+x+1#:y-1,x+1;wr,yl+xl*:l;wr,yL-+yL+*:l;wb,dl*:l;wq,dL0*:l;
+wp,y=6:y-2,wP;wP=1(wp);wP,x-1#:x-1=..,y-1,x-1;
 wk,y-1*X:y-1
  br:br,bn:bn,bb:bb,bq:bq,bk:bk,bp:bp,wr:wr,wn:wn,wb:wb,wq:wq,wk:wk,wp:wp,wP:wp
