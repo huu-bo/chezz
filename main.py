@@ -59,21 +59,22 @@ class Server(BaseHTTPRequestHandler):
         global games
         cookie = self.headers['Cookie']
 
-        theme = None
+        if cookie is not None:
+            theme = None
 
-        split = cookie.split(';')
-        for c in split:
-            c = c.removeprefix(' ')
-            pair = c.split('=')
-            if len(pair) != 2:
-                continue
-            if pair[0] != 'theme':
-                continue
-            if pair[1] not in ['light', 'dark']:
-                continue
-            theme = pair[1]
-        if theme is None:
-            theme = 'light'
+            split = cookie.split(';')
+            for c in split:
+                c = c.removeprefix(' ')
+                pair = c.split('=')
+                if len(pair) != 2:
+                    continue
+                if pair[0] != 'theme':
+                    continue
+                if pair[1] not in ['light', 'dark']:
+                    continue
+                theme = pair[1]
+            if theme is None:
+                theme = 'light'
 
         # if self.rfile.tell() != 0:
         #     self.rfile.seek(0)
