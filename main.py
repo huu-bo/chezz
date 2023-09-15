@@ -47,6 +47,7 @@ class Game:
         self.players = 1
         self.board = None
         self.times = []
+        self.moves = []
 
 
 games = {}
@@ -89,7 +90,8 @@ class Server(BaseHTTPRequestHandler):
         print(base_path, path_query)
 
         if base_path.startswith('/api'):
-            self.send_header("Content-type", "application/json")
+            # self.send_header("Content-type", "application/json")
+            self.send_header("Content-type", "plain/txt")
         elif base_path.endswith('.html'):
             self.send_header("Content-type", "text/html")
         elif base_path.endswith('.js'):
@@ -124,6 +126,9 @@ class Server(BaseHTTPRequestHandler):
 
             return
         elif base_path == '/api/rules':
+            self.send_response(200)
+            self.end_headers()
+
             if 'game-id' in path_query:
                 game_id = path_query['game-id'][0]
             else:
@@ -159,6 +164,9 @@ class Server(BaseHTTPRequestHandler):
             return
 
         elif base_path == '/api/players':
+            self.send_response(200)
+            self.end_headers()
+
             if 'game-id' in path_query:
                 game_id = path_query['game-id'][0]
             else:
@@ -191,6 +199,9 @@ class Server(BaseHTTPRequestHandler):
             return
 
         elif base_path == '/api/join':
+            self.send_response(200)
+            self.end_headers()
+
             if 'game-id' in path_query:
                 game_id = path_query['game-id'][0]
             else:
@@ -216,6 +227,9 @@ class Server(BaseHTTPRequestHandler):
             return
 
         elif base_path == '/api/get-rules':
+            self.send_response(200)
+            self.end_headers()
+
             if 'game-id' in path_query:
                 game_id = path_query['game-id'][0]
             else:
@@ -261,6 +275,58 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write(bytes("<body>", "utf-8"))
             self.wfile.write(bytes("<p>404</p>", "utf-8"))
             self.wfile.write(bytes("</body></html>", "utf-8"))
+
+    def do_POST(self):
+        path = urllib.parse.urlparse(self.path)
+        base_path = path.path
+        path_query = urllib.parse.parse_qs(path.query)
+
+        auth = False
+        if not base_path.startswith('/api/'):
+            self.send_response(403)
+        else:
+            if base_path == '/api/move':
+                if 'game-id' not in path_query:
+                    self.send_response(400)
+                    print('no game-id')
+                elif path_query['game-id'][0] not in games:
+                    self.send_response(404)
+                    print('unknown game-id')
+
+                elif 'token' not in path_query:
+                    self.send_response(401)
+                    print('no token')
+                elif path_query['token'][0] not in games[path_query['game-id'][0]].tokens:
+                    self.send_response(403)
+                    print('incorrect token')
+
+                elif 'move' not in path_query:
+                    self.send_response(404)
+                    print('no move')
+
+                else:
+                    self.send_response(200)
+                    auth = True
+            else:
+                self.send_response(404)
+
+        if not auth:
+            self.end_headers()
+            return
+
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+
+        if base_path == '/api/move':
+            token = path_query['token'][0]  # TODO: check if move is valid
+            game_id = path_query['game-id'][0]
+            move = path_query['move'][0]
+            game = games[game_id]
+
+            game.moves.append(move)
+            self.wfile.write(json.dumps(game.moves).encode('utf-8'))
+        else:
+            assert False
 
 
 if __name__ == "__main__":

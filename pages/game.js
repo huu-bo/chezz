@@ -14,6 +14,7 @@ pieces = {};
 all_pieces = ["bb", "bk", "bn", "bp", "bq", "br",
               "wb", "wk", "wn", "wp", "wq", "wr"]; // TODO: get from rules
 layout = null;
+let drag;
 
 function init() {
     for (let i in all_pieces) {  // TODO: this loads sequentially
@@ -87,7 +88,7 @@ function init() {
         window.board.append(e);
     }
 
-    move_pieces();
+    drag = move_pieces();
 }
 
 function move_pieces() {
@@ -188,11 +189,12 @@ function move_pieces() {
         drag_element.style.top = "0px";
         drag_element.style.position = "static";
 
-        console.log(drag_element, i);
+        console.log("dragged", drag_element, "from", start_drag_i, "to", i);
         squares[i].appendChild(drag_element);
         drag_element = null;
         document.onmouseup = null;
 
+        notify_move(start_drag_i, i);
         shadow.style.opacity = 0;
     }
 
@@ -201,4 +203,55 @@ function move_pieces() {
         board_rect = board.getBoundingClientRect();
         piece_size = getComputedStyle(squares[0]).getPropertyValue('width');
     }
+
+    function drag(from, to) {
+        i = from;
+        drag_mouse_down(null);
+        i = to;
+        drag_mouse_up(null);
+    }
+
+    return drag;
+}
+
+function notify_move(from, to) {
+//    let move = "52 36";
+    const move = from + " " + to;
+
+    const query = new URLSearchParams({
+        "game-id": game_id,
+        "token": getQueryVariable("token"),
+        "move": move
+    });
+
+    const request = new Request("/api/move?" + query.toString(), {"method": "POST"});
+    fetch(request)
+    .then((response) => {
+        if (response.status === 200) {
+            // TODO: error messages
+            return response.json();
+        } else {
+            throw new Error("Something went wrong on API server! " + response.status);
+        }
+    })
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((error) => {
+        console.error(error);
+        document.body.children.error.innerText += "Api error (post move)\n";
+        drag(to, from);
+    });
+}
+
+// https://css-tricks.com/snippets/javascript/get-url-variables/
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
 }

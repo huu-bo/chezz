@@ -84,6 +84,31 @@ class Board:
             s = texture.split(':', 1)
             self.textures[s[0]] = s[1]
 
+    def get_valid_moves(self):
+        out = []
+        for rule in self.rules:
+            print(rule)
+            assert rule[0] in ['RULE', 'DELAY']
+
+            if rule[1][0][0] != 'PIECE':
+                raise NotaSyntaxException(f"first not piece in '{rule}'")
+
+            rule_piece = rule[1][0][1]
+            print('rule_piece:', rule_piece)
+
+            for x, y, piece in self.get_indices_of_piece(rule_piece):
+                pass
+
+    def get_indices_of_piece(self, piece):
+        x = y = 0
+        for row in self.board:
+            x = 0
+            for p in row:
+                if p == piece:
+                    yield x, y, p
+                x += 1
+            y += 1
+
 
 def nota_rule(s: str):
     split = s.split(':')
@@ -278,3 +303,5 @@ def nota_rhs_abs_pos(s: str):
 # print(stockfish.get_evaluation())
 
 board = Board()
+print(board.rules)
+print(board.get_valid_moves())
