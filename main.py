@@ -59,6 +59,7 @@ class Server(BaseHTTPRequestHandler):
         global games
         cookie = self.headers['Cookie']
 
+        theme = 'light'
         if cookie is not None:
             theme = None
 
