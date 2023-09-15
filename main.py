@@ -110,6 +110,9 @@ class Server(BaseHTTPRequestHandler):
             return
 
         if base_path == '/api/game-id':
+            self.send_response(200)
+            self.end_headers()
+
             game_id = new_game_id()
             self.wfile.write(game_id.encode('utf-8'))
             assert game_id not in games
